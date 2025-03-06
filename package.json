@@ -1,0 +1,25 @@
+{
+  "name": "prime-framework",
+  "version": "1.0.0",
+  "description": "The Universal Object References Framework",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=3000 --host=localhost src",
+    "build": "mkdir -p dist && cp -r src/* dist/",
+    "predeploy": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/prime-website.git"
+  },
+  "keywords": [
+    "UOR",
+    "mathematics",
+    "prime"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+} 

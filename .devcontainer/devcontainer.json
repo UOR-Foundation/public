@@ -1,0 +1,40 @@
+{
+    // Dev Container JSON Reference:
+    // https://containers.dev/implementors/json_reference/
+    "name": "prime-framework",
+    "remoteUser": "ubuntu",
+    "containerUser": "ubuntu",
+    "updateRemoteUserUID": false,
+    "dockerFile": "Dockerfile",
+    "postCreateCommand": "devcontainer-links",
+    "shutdownAction": "stopContainer",
+    "overrideCommand": false,
+    "privileged": true,
+    "init": true,
+    "securityOpt": [
+        "seccomp=unconfined"
+    ],
+    "runArgs": [
+        "--privileged",
+        "--network=host"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    },
+    "forwardPorts": [
+        2222,
+        7681
+    ],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "mounts": [
+        "source=dind-var-lib-docker,target=/var/lib/docker,type=volume"
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    }
+}
