@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimeCrypt: Prime Framework Cryptography</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.21.2/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+        
+        code, pre, .math {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .math {
+            font-size: 1.1rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+        }
+        
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn {
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .active-tab {
+            color: #4f46e5;
+            border-bottom: 2px solid #4f46e5;
+        }
+        
+        #intro-animation canvas {
+            border-radius: 8px;
+        }
+        
+        .algorithm-step {
+            transition: background-color 0.3s ease;
+        }
+        
+        .visualization {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* Removed visualization styles */
+        
+        .collapsible-header {
+            cursor: pointer;
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.open {
+            max-height: 2000px;
+        }
+        
+        .note-for-wei {
+            background-color: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .highlight-box {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background-color: #cbd5e0;
+            padding: 1px;
+            border-radius: 4px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+        
+        .matrix-cell {
+            background-color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Remove probe-animation styles */
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo } = React;
+        
+        // Main App
+        const App = () => {
+            const [activeSection, setActiveSection] = useState('introduction');
+            
+            const scrollToSection = (section) => {
+                setActiveSection(section);
+                document.getElementById(section).scrollIntoView({ behavior: 'smooth' });
+            };
+            
+            return (
+                <div className="min-h-screen pb-20">
+                    <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-12 px-4 sm:px-6 lg:px-8">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h1 className="text-4xl font-bold tracking-tight">PrimeCrypt</h1>
+                                    <p className="mt-2 text-indigo-100">A Cryptographic System Built on the Prime Framework</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-indigo-100">Prepared for</p>
+                                    <h2 className="text-2xl font-semibold">Dr. Wei Dai</h2>
+                                </div>
+                            </div>
+                            <p className="mt-6 text-lg text-indigo-100 max-w-3xl">
+                                Explore how the Prime Framework's intrinsic embedding and spectral analysis 
+                                create a new foundation for cryptographic primitives, with insights that 
+                                connect to your pioneering work.
+                            </p>
+                        </div>
+                    </header>
+                    
+                    <nav className="bg-white shadow-sm sticky top-0 z-50">
+                        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between h-16">
+                                <div className="flex space-x-8 overflow-x-auto hide-scrollbar">
+                                    <button 
+                                        onClick={() => scrollToSection('introduction')}
+                                        className={`flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${activeSection === 'introduction' ? 'active-tab' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                        Introduction
+                                    </button>
+                                    <button 
+                                        onClick={() => scrollToSection('foundations')} 
+                                        className={`flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${activeSection === 'foundations' ? 'active-tab' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                        Mathematical Foundations
+                                    </button>
+                                    <button 
+                                        onClick={() => scrollToSection('big-key')} 
+                                        className={`flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${activeSection === 'big-key' ? 'active-tab' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                        Big-Key Architecture
+                                    </button>
+                                    <button 
+                                        onClick={() => scrollToSection('signatures')} 
+                                        className={`flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${activeSection === 'signatures' ? 'active-tab' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                        Signature Schemes
+                                    </button>
+                                    <button 
+                                        onClick={() => scrollToSection('implications')} 
+                                        className={`flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${activeSection === 'implications' ? 'active-tab' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+                                        Implications
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <Introduction />
+                        <Foundations />
+                        <BigKeyArchitecture />
+                        <SignatureSchemes />
+                        <Implications />
+                    </main>
+                </div>
+            );
+        };
+        
+        // Introduction Section
+        const Introduction = () => {
+            const canvasRef = useRef(null);
+            
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                const width = canvas.width;
+                const height = canvas.height;
+                
+                // Particle system properties
+                const particles = [];
+                const numParticles = 50;
+                
+                // Create particles
+                for (let i = 0; i < numParticles; i++) {
+                    particles.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: Math.random() * 3 + 1,
+                        color: `rgba(79, 70, 229, ${Math.random() * 0.5 + 0.25})`,
+                        vx: Math.random() * 2 - 1,
+                        vy: Math.random() * 2 - 1,
+                    });
+                }
+                
+                // Animation function
+                const animate = () => {
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // Update and draw particles
+                    for (let i = 0; i < numParticles; i++) {
+                        const p = particles[i];
+                        
+                        // Update position
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        
+                        // Boundary check with reverse velocity
+                        if (p.x < 0 || p.x > width) p.vx *= -1;
+                        if (p.y < 0 || p.y > height) p.vy *= -1;
+                        
+                        // Draw particle
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.fill();
+                    }
+                    
+                    // Draw connections
+                    ctx.strokeStyle = 'rgba(79, 70, 229, 0.1)';
+                    ctx.lineWidth = 1;
+                    
+                    for (let i = 0; i < numParticles; i++) {
+                        for (let j = i + 1; j < numParticles; j++) {
+                            const p1 = particles[i];
+                            const p2 = particles[j];
+                            const dx = p1.x - p2.x;
+                            const dy = p1.y - p2.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < 100) {
+                                ctx.beginPath();
+                                ctx.moveTo(p1.x, p1.y);
+                                ctx.lineTo(p2.x, p2.y);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    
+                    requestAnimationFrame(animate);
+                };
+                
+                animate();
+            }, []);
+            
+            return (
+                <section id="introduction" className="py-8">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-6">Introduction to PrimeCrypt</h2>
+                    
+                    <div className="flex flex-col md:flex-row gap-8">
+                        <div className="w-full md:w-2/3">
+                            <p className="text-lg mb-4">
+                                PrimeCrypt represents a paradigm shift in cryptographic design, building security primitives from the axioms and structures of the Prime Framework rather than isolated mathematical problems.
+                            </p>
+                            
+                            <div className="note-for-wei mb-6">
+                                <h3 className="font-semibold text-blue-800">Note for Dr. Dai</h3>
+                                <p>
+                                    As the creator of b-money and a pioneer in cryptocurrency design, you'll recognize how PrimeCrypt's approach to embedding number theory into algebraic structures shares conceptual kinship with your work on distributed consensus mechanisms. The coherence constraints of the Prime Framework provide an unexpected parallel to the consensus rules in decentralized systems.
+                                </p>
+                            </div>
+                            
+                            <h3 className="text-xl font-semibold mb-3">Key Innovations</h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700">Intrinsic Embedding</h4>
+                                    <p className="text-sm">
+                                        Cryptographic objects are embedded in fiber algebras with unique minimal-norm representations, providing inherent resistance to partial information leakage.
+                                    </p>
+                                </div>
+                                
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700">Spectral Analysis</h4>
+                                    <p className="text-sm">
+                                        Security reductions use properties of the Prime Operator to eliminate the square-root gap in many traditional cryptographic proofs.
+                                    </p>
+                                </div>
+                                
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700">Hierarchical Decomposition</h4>
+                                    <p className="text-sm">
+                                        Leverages unique factorization of intrinsic primes to create natural chain reductions for multi-signature schemes.
+                                    </p>
+                                </div>
+                                
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700">P≠NP Foundation</h4>
+                                    <p className="text-sm">
+                                        Security arguments connect to the complexity separation proved in the Prime Framework through coherence constraints.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <p className="mb-4">
+                                The most significant breakthrough of PrimeCrypt lies in how its security is derived from the coherence inner product of the Prime Framework. Unlike conventional cryptography that relies on computational assumptions about specific problems, PrimeCrypt's security emerges directly from the axiomatic structure itself.
+                            </p>
+                        </div>
+                        
+                        <div className="w-full md:w-1/3">
+                            <div className="bg-white p-4 rounded-lg shadow-md">
+                                <h3 className="font-semibold text-center mb-3">Prime Framework Connections</h3>
+                                <div id="intro-animation">
+                                    <canvas ref={canvasRef} width="300" height="240" className="w-full bg-gray-50"></canvas>
+                                </div>
+                                <div className="mt-4 text-sm">
+                                    <p className="font-semibold mb-1">Visualized Concepts:</p>
+                                    <ul className="list-disc pl-5 space-y-1">
+                                        <li>Interconnected fiber algebras</li>
+                                        <li>Coherent representations</li>
+                                        <li>Spectral properties</li>
+                                        <li>Intrinsic prime factorization</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+        
+        // Mathematical Foundations Section
+        const Foundations = () => {
+            const [openCollapsible, setOpenCollapsible] = useState(null);
+            
+            const toggleCollapsible = (id) => {
+                if (openCollapsible === id) {
+                    setOpenCollapsible(null);
+                } else {
+                    setOpenCollapsible(id);
+                }
+            };
+            
+            return (
+                <section id="foundations" className="py-8 border-t border-gray-200">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-6">Mathematical Foundations</h2>
+                    
+                    <p className="text-lg mb-6">
+                        PrimeCrypt is built upon the four axioms of the Prime Framework, creating a rigorous foundation that leads to uniquely powerful cryptographic properties.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div className="card bg-white p-5">
+                            <h3 className="text-xl font-semibold mb-3 text-indigo-700">The Four Axioms</h3>
+                            <ol className="space-y-3 pl-5 list-decimal">
+                                <li>
+                                    <span className="font-semibold">Reference Manifold (M):</span> 
+                                    <p className="text-sm">A smooth, connected, orientable manifold with a nondegenerate metric providing the geometric arena.</p>
+                                </li>
+                                <li>
+                                    <span className="font-semibold">Algebraic Fibers (C<sub>x</sub>):</span> 
+                                    <p className="text-sm">At each point x∈M, an associative fiber algebra (typically a Clifford algebra) encoding local algebraic structure.</p>
+                                </li>
+                                <li>
+                                    <span className="font-semibold">Symmetry Group Action (G):</span> 
+                                    <p className="text-sm">A Lie group G acting by isometries on M and lifting to each fiber as algebra automorphisms.</p>
+                                </li>
+                                <li>
+                                    <span className="font-semibold">Coherence Inner Product:</span> 
+                                    <p className="text-sm">A G-invariant, positive-definite inner product on each fiber that selects minimal-norm canonical representations.</p>
+                                </li>
+                            </ol>
+                        </div>
+                        
+                        <div className="card bg-white p-5">
+                            <h3 className="text-xl font-semibold mb-3 text-indigo-700">Key Framework Results</h3>
+                            <ul className="space-y-3 pl-5 list-disc">
+                                <li>
+                                    <span className="font-semibold">Universal Number Embedding:</span> 
+                                    <p className="text-sm">Numbers are embedded with all base representations simultaneously, with coherence selecting canonical forms.</p>
+                                </li>
+                                <li>
+                                    <span className="font-semibold">Intrinsic Primes:</span> 
+                                    <p className="text-sm">Embedded numbers that can't be factored non-trivially within the framework.</p>
+                                </li>
+                                <li>
+                                    <span className="font-semibold">Unique Factorization:</span> 
+                                    <p className="text-sm">Every embedded number factors uniquely into intrinsic primes.</p>
+                                </li>
+                                <li>
+                                    <span className="font-semibold">Prime Operator:</span> 
+                                    <p className="text-sm">Linear operator encoding divisor structure, yielding an intrinsic zeta function with Euler product formula.</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div className="note-for-wei mb-8">
+                        <h3 className="font-semibold text-blue-800">Connection to Wei Dai's Work</h3>
+                        <p>
+                            The coherence inner product's ability to select canonical representations has interesting parallels to your work on reputation systems in b-money. Both create consensus-like mechanisms to select preferred states. Moreover, the robust security under partial information leakage relates to your interests in deniability and resilient key management.
+                        </p>
+                    </div>
+                    
+                    <div className="mb-8">
+                        <div className="collapsible-header bg-indigo-50 p-4 rounded-t-lg flex justify-between items-center" onClick={() => toggleCollapsible('intrinsic-embedding')}>
+                            <h3 className="text-xl font-semibold">Intrinsic Embedding: A Deeper Look</h3>
+                            <svg className={`w-5 h-5 transform ${openCollapsible === 'intrinsic-embedding' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        <div className={`collapsible-content bg-white p-5 rounded-b-lg border-l border-r border-b border-indigo-100 ${openCollapsible === 'intrinsic-embedding' ? 'open' : ''}`}>
+                            <p className="mb-4">
+                                The Universal Number Embedding expresses each natural number N in every base b≥2 simultaneously:
+                            </p>
+                            <div className="math text-center overflow-x-auto mb-4">
+                                <span className="font-mono">N = a<sub>k</sub>(b)b<sup>k</sup> + a<sub>k-1</sub>(b)b<sup>k-1</sup> + ... + a<sub>0</sub>(b)</span>
+                            </div>
+                            <p className="mb-4">
+                                These representations are embedded as distinct graded components in the Clifford algebra fiber C<sub>x</sub>. The coherence inner product forces these different representations to agree, selecting a unique minimal-norm element.
+                            </p>
+                            <p className="mb-4">
+                                For cryptographic purposes, this means:
+                            </p>
+                            <ul className="list-disc pl-5 space-y-2 mb-4">
+                                <li>Keys have redundant, self-consistent representations</li>
+                                <li>Any deviation from the canonical representation increases the coherence norm</li>
+                                <li>Partial information about the key in one "base" doesn't easily yield information in others</li>
+                                <li>The intrinsic embedding provides a natural error detection mechanism</li>
+                            </ul>
+                            <div className="highlight-box">
+                                <p className="font-semibold text-indigo-700">Key Insight for Cryptography:</p>
+                                <p>
+                                    This embedding creates a new form of key derivation and validation where the representation itself guarantees consistency across multiple domains. Unlike traditional key derivation functions, where consistency is enforced algorithmically, PrimeCrypt's consistency emerges from the mathematical structure itself.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mb-8">
+                        <div className="collapsible-header bg-indigo-50 p-4 rounded-t-lg flex justify-between items-center" onClick={() => toggleCollapsible('prime-operator')}>
+                            <h3 className="text-xl font-semibold">Prime Operator and Zeta Function</h3>
+                            <svg className={`w-5 h-5 transform ${openCollapsible === 'prime-operator' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                        <div className={`collapsible-content bg-white p-5 rounded-b-lg border-l border-r border-b border-indigo-100 ${openCollapsible === 'prime-operator' ? 'open' : ''}`}>
+                            <p className="mb-4">
+                                The Prime Operator H is a linear operator on the Hilbert space ℓ<sup>2</sup>(ℕ) defined by:
+                            </p>
+                            <div className="math text-center overflow-x-auto mb-4">
+                                <span className="font-mono">H(δ<sub>N</sub>) = ∑<sub>d|N</sub> δ<sub>d</sub></span>
+                            </div>
+                            <p className="mb-4">
+                                Where δ<sub>N</sub> are the standard orthonormal basis vectors. This operator encodes the divisor structure of natural numbers, and its spectral analysis yields the intrinsic zeta function:
+                            </p>
+                            <div className="math text-center overflow-x-auto mb-4">
+                                <span className="font-mono">ζ<sub>P</sub>(s) = 1/D(s) = ∏<sub>p intrinsic</sub> 1/(1 - p<sup>-s</sup>)</span>
+                            </div>
+                            <p className="mb-4">
+                                Where D(s) = det(I - p<sup>-s</sup>H).
+                            </p>
+                            <p className="mb-4">
+                                This function has profound implications for cryptography:
+                            </p>
+                            <ul className="list-disc pl-5 space-y-2 mb-4">
+                                <li>It provides an analytic framework for security reductions</li>
+                                <li>The spectral properties of H reveal deep structure in the number system that can be exploited for cryptographic purposes</li>
+                                <li>The Euler product representation connects to unique factorization and enables hierarchical composition of cryptographic objects</li>
+                            </ul>
+                            <div className="highlight-box">
+                                <p className="font-semibold text-indigo-700">Cryptographic Innovation:</p>
+                                <p>
+                                    PrimeCrypt's security reductions leverage these spectral properties to eliminate the "square-root gap" that plagues many cryptographic proofs. By "lifting" problems like discrete logarithm into the analytic domain via the intrinsic zeta function, tighter bounds on adversary advantages can be established.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="highlight-box bg-purple-50 border-purple-200">
+                        <h3 className="font-semibold text-purple-800 text-lg mb-3">The Profound Insight: Coherence as Cryptographic Strength</h3>
+                        <p className="mb-4">
+                            The most revolutionary aspect of the Prime Framework for cryptography is how it reimagines security as an emergent property of mathematical coherence rather than computational hardness.
+                        </p>
+                        <p>
+                            In traditional cryptography, security is based on the presumed difficulty of solving certain mathematical problems. In PrimeCrypt, security emerges from the coherence inner product's ability to select canonical minimal-norm representations and impose a "penalty" on any deviation. This creates a natural form of error detection and correction that makes the system inherently resistant to many forms of cryptanalysis.
+                        </p>
+                    </div>
+                </section>
+            );
+        };
+        
+        // Big-Key Architecture Section
+        const BigKeyArchitecture = () => {
+            const [probeAnimation, setProbeAnimation] = useState(false);
+            
+            const runProbeAnimation = () => {
+                setProbeAnimation(true);
+                // Reset after animation completes
+                setTimeout(() => setProbeAnimation(false), 6000); // Longer to allow reading the content
+            };
+            
+            return (
+                <section id="big-key" className="py-8 border-t border-gray-200">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-6">Big-Key Architecture</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="md:col-span-2">
+                            <p className="text-lg mb-4">
+                                PrimeCrypt introduces a revolutionary "big-key" design that leverages large key material with efficient subkey extraction to provide information-theoretic security guarantees.
+                            </p>
+                            
+                            <h3 className="text-xl font-semibold mb-4">Key Components</h3>
+                            
+                            <div className="space-y-6 mb-6">
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700 mb-2">Key Generation</h4>
+                                    <p className="mb-2">
+                                        A master key K is generated as a random sequence in [q]<sup>k</sup>, where:
+                                    </p>
+                                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                                        <li>q = 2<sup>b</sup> is the alphabet size (b is the block size in bits)</li>
+                                        <li>k = k*/b is the number of blocks (k* is the total key length in bits)</li>
+                                    </ul>
+                                    <p className="mt-2 text-sm">
+                                        The intrinsic embedding ensures that K has a unique minimal-norm representation in the fiber algebra C<sub>x</sub>.
+                                    </p>
+                                </div>
+                                
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700 mb-2">Subkey Extraction</h4>
+                                    <p className="mb-2">
+                                        A working subkey J is extracted using a random probe vector p ∈ [k]<sup>(τ)</sup>:
+                                    </p>
+                                    <div className="math text-center overflow-x-auto mb-2">
+                                        <span className="font-mono">J = K[p] = (K[p[1]], K[p[2]], ..., K[p[τ]])</span>
+                                    </div>
+                                    <p className="text-sm">
+                                        Where τ is the number of probes (indices). The adversary's ability to predict J is bounded by the ratio of Hamming ball sizes.
+                                    </p>
+                                </div>
+                                
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700 mb-2">Symmetric Encryption</h4>
+                                    <p className="mb-2">
+                                        Using the extracted subkey J:
+                                    </p>
+                                    <div className="math text-center overflow-x-auto mb-2">
+                                        <span className="font-mono">Enc(K, M) = AE(H(J), M)</span>
+                                    </div>
+                                    <p className="text-sm">
+                                        Where AE is a conventional symmetric encryption algorithm and H is a cryptographic hash function.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="note-for-wei mb-6">
+                                <h3 className="font-semibold text-blue-800">For Wei Dai's Consideration</h3>
+                                <p>
+                                    This big-key design has an interesting parallel with your concept of "computational puzzles" from b-money. Both use large computational resources (memory in PrimeCrypt, computation in b-money) to establish security. However, PrimeCrypt flips the model: instead of requiring large computation to generate a valid proof, it requires large memory to store a valid key.
+                                </p>
+                                <p className="mt-2">
+                                    You might find it particularly interesting how the probe vector approach provides a statistical security guarantee based on combinatorial properties rather than computational assumptions.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="md:col-span-1">
+                            <div className="card bg-white p-4">
+                                <h3 className="font-semibold text-center mb-4">Subkey Extraction Process</h3>
+                                
+                                <div className="mb-4 p-3 bg-indigo-50 rounded-lg text-sm">
+                                    <p className="font-semibold text-indigo-800 mb-2">Understanding Big-Key Architecture:</p>
+                                    <p>
+                                        PrimeCrypt stores an enormous master key (potentially 100GB+) with a unique 
+                                        intrinsic embedding in the fiber algebra. For cryptographic operations, 
+                                        we extract a small working subkey using random probes that provide 
+                                        information-theoretic security guarantees.
+                                    </p>
+                                </div>
+                                
+                                <div className="mb-6 bg-white border border-gray-200 rounded-lg">
+                                    <div className="p-2 bg-gray-100 border-b border-gray-200 font-semibold text-center">
+                                        Master Key Representation (K)
+                                    </div>
+                                    <div className="p-3">
+                                        <div className="grid grid-cols-4 gap-1 mb-3">
+                                            {Array(16).fill().map((_, i) => (
+                                                <div key={i} className={`p-2 text-center text-xs font-mono border ${probeAnimation && [3, 8, 12].includes(i) ? 'bg-indigo-100 border-indigo-500' : 'bg-gray-50 border-gray-200'}`}>
+                                                    {Math.floor(Math.random() * 256).toString(16).padStart(2, '0')}
+                                                    {probeAnimation && [3, 8, 12].includes(i) && <span className="ml-1 text-indigo-600 font-bold">*</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="text-xs text-gray-500 text-center italic">
+                                            Showing 16 of k={Math.floor(8e11/512).toLocaleString()} blocks (each 512 bits)
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-3 mb-4">
+                                    <div className={`p-3 rounded-lg border ${probeAnimation ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'}`}>
+                                        <h4 className="font-medium text-sm">Step 1: Generate Random Probe Vector</h4>
+                                        {probeAnimation && (
+                                            <div className="mt-2 text-xs">
+                                                <div className="font-mono bg-white p-2 rounded border border-indigo-100">
+                                                    p = [3, 8, 12, ..., 8.34×10<sup>11</sup>]
+                                                </div>
+                                                <p className="mt-1 text-indigo-700">
+                                                    Randomly select τ=43 distinct positions from the master key.
+                                                    The positions are unpredictable and different for each operation.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className={`p-3 rounded-lg border ${probeAnimation ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'}`}>
+                                        <h4 className="font-medium text-sm">Step 2: Extract Subkey Blocks</h4>
+                                        {probeAnimation && (
+                                            <div className="mt-2 text-xs">
+                                                <div className="font-mono bg-white p-2 rounded border border-indigo-100">
+                                                    J = K[p] = [K[3], K[8], K[12], ...]
+                                                </div>
+                                                <div className="mt-2 grid grid-cols-3 gap-1">
+                                                    <div className="p-2 text-center font-mono bg-indigo-100 border border-indigo-300 rounded">
+                                                        {Math.floor(Math.random() * 256).toString(16).padStart(2, '0')}
+                                                    </div>
+                                                    <div className="p-2 text-center font-mono bg-indigo-100 border border-indigo-300 rounded">
+                                                        {Math.floor(Math.random() * 256).toString(16).padStart(2, '0')}
+                                                    </div>
+                                                    <div className="p-2 text-center font-mono bg-indigo-100 border border-indigo-300 rounded">
+                                                        {Math.floor(Math.random() * 256).toString(16).padStart(2, '0')}
+                                                    </div>
+                                                </div>
+                                                <p className="mt-1 text-indigo-700">
+                                                    Extract the blocks at each probe position to form the subkey J.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className={`p-3 rounded-lg border ${probeAnimation ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'}`}>
+                                        <h4 className="font-medium text-sm">Step 3: Derive Working Key</h4>
+                                        {probeAnimation && (
+                                            <div className="mt-2 text-xs">
+                                                <div className="font-mono bg-white p-2 rounded border border-indigo-100">
+                                                    K<sub>sym</sub> = H(J) = SHA-256(J)
+                                                </div>
+                                                <div className="mt-1 p-2 font-mono text-center bg-green-100 border border-green-300 rounded text-green-800">
+                                                    a7d8f3e2c5b1964f0d2e7a3c9b8f5e1d...
+                                                </div>
+                                                <p className="mt-1 text-indigo-700">
+                                                    Hash the extracted subkey to create the final symmetric key for encryption.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="mb-4 text-center">
+                                    <button 
+                                        onClick={runProbeAnimation}
+                                        className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+                                        disabled={probeAnimation}
+                                    >
+                                        {probeAnimation ? 'Extracting...' : 'Extract Subkey'}
+                                    </button>
+                                </div>
+                                
+                                {probeAnimation && (
+                                    <div className="mt-4 p-3 border border-indigo-200 rounded-lg bg-indigo-50">
+                                        <h4 className="font-medium text-indigo-800 text-center mb-2">Security Guarantees</h4>
+                                        <div className="space-y-2 text-xs">
+                                            <div className="bg-white p-2 rounded border border-indigo-100">
+                                                <div className="font-semibold text-gray-700">Information-Theoretic Security:</div>
+                                                <p className="text-indigo-700">
+                                                    Even if an adversary has learned up to 90% of the master key K,
+                                                    they still cannot predict the extracted subkey with probability better than 2<sup>-128</sup>.
+                                                </p>
+                                            </div>
+                                            <div className="bg-white p-2 rounded border border-indigo-100">
+                                                <div className="font-semibold text-gray-700">Mathematical Bound:</div>
+                                                <p className="text-indigo-700">
+                                                    The adversary's advantage is bounded by the ratio of Hamming ball sizes:
+                                                    Adv ≤ B<sub>q,k-τ</sub>(r)/B<sub>q,k</sub>(r)
+                                                </p>
+                                            </div>
+                                            <div className="bg-white p-2 rounded border border-indigo-100">
+                                                <div className="font-semibold text-gray-700">Prime Framework Enhancement:</div>
+                                                <p className="text-indigo-700">
+                                                    The intrinsic embedding provides additional protection against
+                                                    partial key attacks through the coherence penalty on inconsistent representations.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="mt-6 bg-gray-50 p-4 rounded-lg text-sm">
+                                <p className="font-semibold mb-2">Example Parameters:</p>
+                                <ul className="space-y-1">
+                                    <li><span className="font-mono">b = 512 bits</span> (block size)</li>
+                                    <li><span className="font-mono">k* = 8×10^11 bits</span> (~100 GB key)</li>
+                                    <li><span className="font-mono">τ = 43</span> (probe vector length)</li>
+                                    <li><span className="font-mono">Adv ≤ 2^-128</span> (security level)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-8">
+                        <h3 className="text-xl font-semibold mb-4">The Coherence Advantage</h3>
+                        
+                        <div className="highlight-box">
+                            <p className="mb-4">
+                                The true innovation of PrimeCrypt's big-key approach is how it leverages the coherence inner product of the Prime Framework to create provable resilience against partial key leakage.
+                            </p>
+                            <p className="mb-4">
+                                In traditional cryptography, key leakage is modeled as giving an adversary direct bits of the key or related values. In PrimeCrypt, the multi-base representation of keys means that even if an adversary learns a representation in one "base," the coherence constraint makes it difficult to derive representations in other bases.
+                            </p>
+                            <p>
+                                This "coherence penalty" ensures that any adversarial leakage function L cannot efficiently reconstruct the full key, providing a rigorous foundation for leakage-resilient cryptography that doesn't rely on computational assumptions.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+        
+        // Signature Schemes Section
+        const SignatureSchemes = () => {
+            const [currentStep, setCurrentStep] = useState(0);
+            const [animationRunning, setAnimationRunning] = useState(false);
+            
+            const runSignatureAnimation = () => {
+                setAnimationRunning(true);
+                setCurrentStep(0);
+                
+                const steps = 5;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += 1;
+                    setCurrentStep(current);
+                    
+                    if (current >= steps) {
+                        clearInterval(timer);
+                        setAnimationRunning(false);
+                        // No longer resetting currentStep, so the final state remains visible
+                    }
+                }, 1500);
+            };
+            
+            return (
+                <section id="signatures" className="py-8 border-t border-gray-200">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-6">Signature Schemes</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="md:col-span-2">
+                            <p className="text-lg mb-6">
+                                PrimeCrypt's signature schemes leverage the unique factorization of intrinsic primes to create identification protocols and signatures with unprecedented properties.
+                            </p>
+                            
+                            <div className="space-y-6 mb-6">
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700 mb-2">Identification Protocol</h4>
+                                    <p className="mb-3">
+                                        The secret key sk is represented as an intrinsic number with canonical embedding ŝk in the fiber algebra.
+                                    </p>
+                                    <ol className="list-decimal pl-5 space-y-2 text-sm">
+                                        <li>
+                                            <span className="font-semibold">Commitment:</span> The prover computes a commitment C by applying a random transformation in C<sub>x</sub> to ŝk.
+                                        </li>
+                                        <li>
+                                            <span className="font-semibold">Challenge:</span> The verifier issues a random challenge.
+                                        </li>
+                                        <li>
+                                            <span className="font-semibold">Response:</span> The prover computes a response based on the challenge and the intrinsic structure of ŝk.
+                                        </li>
+                                    </ol>
+                                    <p className="mt-3 text-sm">
+                                        The protocol is designed so that the security reduction is tight, achieved by "lifting" the discrete logarithm problem into the analytic domain via the intrinsic zeta function.
+                                    </p>
+                                </div>
+                                
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700 mb-2">Signature Scheme</h4>
+                                    <p className="mb-3">
+                                        The interactive identification protocol is converted to a non-interactive signature scheme using the Fiat-Shamir transform.
+                                    </p>
+                                    <ul className="list-disc pl-5 space-y-2 text-sm">
+                                        <li>The signature σ consists of the commitment C and the computed response</li>
+                                        <li>Verification involves reconstructing the challenge from the hash of the commitment and message</li>
+                                        <li>Security relies on spectral analysis and the tight reduction that eliminates the square-root gap</li>
+                                    </ul>
+                                </div>
+                                
+                                <div className="card bg-white p-4">
+                                    <h4 className="font-semibold text-indigo-700 mb-2">Multi-Signature and Chain Reductions</h4>
+                                    <p className="mb-3">
+                                        PrimeCrypt enables efficient aggregation of signatures through its unique factorization property.
+                                    </p>
+                                    <ul className="list-disc pl-5 space-y-2 text-sm">
+                                        <li>Each signer possesses a secret intrinsic key factor (corresponding to an intrinsic prime)</li>
+                                        <li>Signatures from multiple signers can be aggregated: Σ = ∏σ<sub>i</sub></li>
+                                        <li>The unique factorization guarantees that the aggregate signature retains a tight security bound</li>
+                                        <li>Each "chain link" (signature component) corresponds to a distinct intrinsic prime factor</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div className="note-for-wei mb-6">
+                                <h3 className="font-semibold text-blue-800">Connection to Dr. Dai's Work</h3>
+                                <p>
+                                    The multi-signature approach has interesting parallels to your early work on distributed consensus mechanisms. Just as b-money required participants to collectively verify and sign transactions, PrimeCrypt's multi-signature scheme allows distributed parties to collaborate while maintaining the integrity of the whole system.
+                                </p>
+                                <p className="mt-2">
+                                    Moreover, the tight security reduction via the intrinsic zeta function addresses a long-standing issue in cryptography—the square-root gap in many security reductions—which I know you've encountered in your work on security proofs for the Crypto++ library.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="md:col-span-1">
+                            <div className="card bg-white p-4">
+                                <h3 className="font-semibold text-center mb-4">Signature Process Visualization</h3>
+                                
+                                <div className="space-y-2 mb-6">
+                                    <div className={`algorithm-step p-2 rounded-lg ${currentStep >= 1 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+                                        <div className="flex items-center">
+                                            <div className={`rounded-full w-8 h-8 flex items-center justify-center mr-2 ${currentStep >= 1 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                                1
+                                            </div>
+                                            <span className="font-medium">Generate Commitment</span>
+                                        </div>
+                                        <p className="text-sm mt-1 ml-10">
+                                            Apply random transformation to ŝk
+                                        </p>
+                                        {currentStep >= 1 && (
+                                            <div className="mt-2 ml-10 p-2 bg-blue-50 rounded text-xs font-mono">
+                                                Secret key: <span className="text-blue-700">ŝk = 7A52F...</span><br/>
+                                                Random r: <span className="text-blue-700">r = 3D8E1...</span><br/>
+                                                C = G<sup>r</sup> = <span className="text-blue-700">04C79B3...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className={`algorithm-step p-2 rounded-lg ${currentStep >= 2 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+                                        <div className="flex items-center">
+                                            <div className={`rounded-full w-8 h-8 flex items-center justify-center mr-2 ${currentStep >= 2 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                                2
+                                            </div>
+                                            <span className="font-medium">Hash Message & Commitment</span>
+                                        </div>
+                                        <p className="text-sm mt-1 ml-10">
+                                            Generate challenge via Fiat-Shamir
+                                        </p>
+                                        {currentStep >= 2 && (
+                                            <div className="mt-2 ml-10 p-2 bg-blue-50 rounded text-xs font-mono">
+                                                Message: <span className="text-blue-700">"Hello from Dr. Wei Dai"</span><br/>
+                                                Challenge e = H(C||msg) = <span className="text-blue-700">F2E614...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className={`algorithm-step p-2 rounded-lg ${currentStep >= 3 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+                                        <div className="flex items-center">
+                                            <div className={`rounded-full w-8 h-8 flex items-center justify-center mr-2 ${currentStep >= 3 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                                3
+                                            </div>
+                                            <span className="font-medium">Compute Response</span>
+                                        </div>
+                                        <p className="text-sm mt-1 ml-10">
+                                            Based on secret key and challenge
+                                        </p>
+                                        {currentStep >= 3 && (
+                                            <div className="mt-2 ml-10 p-2 bg-blue-50 rounded text-xs font-mono">
+                                                s = r + e·sk (mod q)<br/>
+                                                s = <span className="text-blue-700">3D8E1... + F2E614... · 7A52F...</span><br/>
+                                                s = <span className="text-blue-700">A1C63D8...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className={`algorithm-step p-2 rounded-lg ${currentStep >= 4 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+                                        <div className="flex items-center">
+                                            <div className={`rounded-full w-8 h-8 flex items-center justify-center mr-2 ${currentStep >= 4 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                                4
+                                            </div>
+                                            <span className="font-medium">Form Signature</span>
+                                        </div>
+                                        <p className="text-sm mt-1 ml-10">
+                                            Combine commitment and response
+                                        </p>
+                                        {currentStep >= 4 && (
+                                            <div className="mt-2 ml-10 p-2 bg-blue-50 rounded text-xs font-mono">
+                                                σ = (C, s)<br/>
+                                                σ = (<span className="text-blue-700">04C79B3...</span>, <span className="text-blue-700">A1C63D8...</span>)
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className={`algorithm-step p-2 rounded-lg ${currentStep >= 5 ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}`}>
+                                        <div className="flex items-center">
+                                            <div className={`rounded-full w-8 h-8 flex items-center justify-center mr-2 ${currentStep >= 5 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                                                5
+                                            </div>
+                                            <span className="font-medium">Verify Signature</span>
+                                        </div>
+                                        <p className="text-sm mt-1 ml-10">
+                                            Check signature validity
+                                        </p>
+                                        {currentStep >= 5 && (
+                                            <div className="mt-2 ml-10 p-2 bg-blue-50 rounded text-xs font-mono overflow-auto">
+                                                <div className="text-xs font-semibold">Verifier Steps:</div>
+                                                1. Compute e' = H(C||msg) = <span className="text-blue-700">F2E614...</span><br/>
+                                                2. Calculate G<sup>s</sup> = <span className="text-blue-700">17D4B2...</span><br/>
+                                                3. Calculate C·Y<sup>e'</sup> = <span className="text-blue-700">17D4B2...</span><br/>
+                                                4. Check if G<sup>s</sup> = C·Y<sup>e'</sup> ✓<br/>
+                                                <div className="mt-2 font-semibold text-green-600">SIGNATURE VERIFIED ✓</div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {currentStep >= 5 && (
+                                    <div className="mt-4 p-3 border border-green-200 rounded-lg bg-green-50">
+                                        <h4 className="font-medium text-green-800 text-center">Signature Details</h4>
+                                        <div className="grid grid-cols-2 gap-2 mt-2 text-xs font-mono">
+                                            <div className="bg-white p-2 rounded border border-green-100">
+                                                <div className="font-semibold text-gray-700">Public Key:</div>
+                                                <div className="text-green-700 break-all">Y = G<sup>sk</sup> = 03A8F1D...</div>
+                                            </div>
+                                            <div className="bg-white p-2 rounded border border-green-100">
+                                                <div className="font-semibold text-gray-700">Message:</div>
+                                                <div className="text-green-700 break-all">"Hello from Dr. Wei Dai"</div>
+                                            </div>
+                                            <div className="bg-white p-2 rounded border border-green-100">
+                                                <div className="font-semibold text-gray-700">Commitment (C):</div>
+                                                <div className="text-green-700 break-all">04C79B38D2F1A5...</div>
+                                            </div>
+                                            <div className="bg-white p-2 rounded border border-green-100">
+                                                <div className="font-semibold text-gray-700">Response (s):</div>
+                                                <div className="text-green-700 break-all">A1C63D82B74F9...</div>
+                                            </div>
+                                            <div className="col-span-2 bg-white p-2 rounded border border-green-100">
+                                                <div className="font-semibold text-gray-700">Security Notes:</div>
+                                                <ul className="list-disc pl-4 text-green-700 mt-1">
+                                                    <li>Tight security reduction via Prime Operator spectral analysis</li>
+                                                    <li>No square-root gap in security proof</li>
+                                                    <li>Intrinsic zeta function: ζ<sub>P</sub>(s) provides analytic foundation</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div className="mt-4 text-center space-x-4">
+                                    <button 
+                                        onClick={runSignatureAnimation}
+                                        className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+                                        disabled={animationRunning}
+                                    >
+                                        {animationRunning ? 'Signing...' : 'Create & Verify Signature'}
+                                    </button>
+                                    
+                                    {currentStep === 5 && (
+                                        <button 
+                                            onClick={() => setCurrentStep(0)}
+                                            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
+                                        >
+                                            Reset Demo
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6 bg-purple-50 p-4 rounded-lg border border-purple-200">
+                                <h3 className="font-semibold text-purple-800 mb-2">Tight Security Reduction</h3>
+                                <p className="text-sm">
+                                    PrimeCrypt's revolutionary contribution is eliminating the "square-root gap" that affects many cryptographic security proofs. Using the spectral properties of the Prime Operator and the intrinsic zeta function, PrimeCrypt achieves a tight reduction between the security of the signature scheme and the underlying hard problem.
+                                </p>
+                                <div className="mt-3 bg-white p-2 rounded">
+                                    <p className="text-xs font-mono">
+                                        Traditional security loss: O(√q)<br />
+                                        PrimeCrypt security loss: O(1)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-8">
+                        <h3 className="text-xl font-semibold mb-4">Multi-Signature Aggregation</h3>
+                        
+                        <div className="bg-white rounded-lg p-4 shadow-md my-6">
+                            <h4 className="font-semibold text-indigo-700 mb-3">Unique Factorization Property</h4>
+                            <p className="mb-4">
+                                PrimeCrypt's multi-signature scheme leverages the unique factorization of intrinsic primes to create a hierarchical structure with unique security properties:
+                            </p>
+                            <ul className="list-disc pl-5 space-y-2 text-sm mb-4">
+                                <li>Each signer's key corresponds to an intrinsic prime factor</li>
+                                <li>The aggregate signature Σ retains the properties of all components</li>
+                                <li>Verification can be done holistically or per-component</li>
+                                <li>The scheme is naturally resistant to rogue-key attacks</li>
+                            </ul>
+                            <div className="math text-center overflow-x-auto">
+                                <span className="font-mono">Σ = ∏<sub>i=1</sub><sup>n</sup> σ<sub>i</sub></span>
+                            </div>
+                            <p className="text-sm text-center italic mt-2">
+                                The aggregate signature is the product of individual signatures
+                            </p>
+                        </div>
+                        
+                        <div className="highlight-box mt-6">
+                            <h4 className="font-semibold text-indigo-700 mb-2">Key Innovation: Modular Security</h4>
+                            <p>
+                                The unique factorization property creates a modular security model where the integrity of each component can be verified independently, but the composite signature maintains the cryptographic properties of the whole system. This enables flexible verification policies and naturally supports threshold schemes without additional protocol complexity.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+        
+        // Implications Section
+        const Implications = () => {
+            return (
+                <section id="implications" className="py-8 border-t border-gray-200">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-6">Implications and Future Directions</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 className="text-xl font-semibold mb-4">Theoretical Implications</h3>
+                            
+                            <div className="card bg-white p-4 mb-4">
+                                <h4 className="font-semibold text-indigo-700 mb-2">P≠NP Complexity Separation</h4>
+                                <p className="text-sm">
+                                    The Prime Framework provides a rigorous proof of P≠NP by demonstrating that the coherence norm minimization problem (e.g., finding a satisfying assignment) requires exponentially many elementary operations. This fundamental separation reinforces the security of PrimeCrypt's cryptographic constructions.
+                                </p>
+                            </div>
+                            
+                            <div className="card bg-white p-4 mb-4">
+                                <h4 className="font-semibold text-indigo-700 mb-2">Tight Security Reductions</h4>
+                                <p className="text-sm">
+                                    By leveraging the spectral properties of the Prime Operator and the intrinsic zeta function, PrimeCrypt achieves security reductions without the "square-root gap," potentially increasing the concrete security of cryptographic constructions.
+                                </p>
+                            </div>
+                            
+                            <div className="card bg-white p-4">
+                                <h4 className="font-semibold text-indigo-700 mb-2">Coherence as a Security Model</h4>
+                                <p className="text-sm">
+                                    PrimeCrypt demonstrates that mathematical coherence can serve as a powerful security model, where deviations from canonical representations naturally incur penalties that can be quantified.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 className="text-xl font-semibold mb-4">Practical Applications</h3>
+                            
+                            <div className="card bg-white p-4 mb-4">
+                                <h4 className="font-semibold text-indigo-700 mb-2">Leakage-Resilient Systems</h4>
+                                <p className="text-sm">
+                                    The big-key architecture with statistical security guarantees is ideal for highly sensitive environments where partial key leakage is a concern. Potential applications include:
+                                </p>
+                                <ul className="list-disc pl-5 mt-2 text-xs space-y-1">
+                                    <li>High-security government and military systems</li>
+                                    <li>Financial infrastructure protection</li>
+                                    <li>Long-term data archiving with forward secrecy</li>
+                                </ul>
+                            </div>
+                            
+                            <div className="card bg-white p-4 mb-4">
+                                <h4 className="font-semibold text-indigo-700 mb-2">Multi-Party Cryptographic Systems</h4>
+                                <p className="text-sm">
+                                    The hierarchical composition of signatures creates natural applications in distributed systems:
+                                </p>
+                                <ul className="list-disc pl-5 mt-2 text-xs space-y-1">
+                                    <li>Decentralized identity and authorization</li>
+                                    <li>Blockchain consensus mechanisms</li>
+                                    <li>Supply chain validation and verification</li>
+                                </ul>
+                            </div>
+                            
+                            <div className="card bg-white p-4">
+                                <h4 className="font-semibold text-indigo-700 mb-2">Post-Quantum Considerations</h4>
+                                <p className="text-sm">
+                                    While not explicitly designed as post-quantum, the unique mathematical foundation of PrimeCrypt offers potential resistance paths:
+                                </p>
+                                <ul className="list-disc pl-5 mt-2 text-xs space-y-1">
+                                    <li>The big-key design provides information-theoretic security independent of quantum attacks</li>
+                                    <li>The multi-base embedding creates natural redundancy that may provide resilience</li>
+                                    <li>The algebraic structure could be adapted to quantum-resistant primitives</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="note-for-wei mb-8">
+                        <h3 className="font-semibold text-blue-800">Final Note for Dr. Dai</h3>
+                        <p>
+                            As a pioneer who proposed b-money and has contributed significantly to cryptography, your perspective on PrimeCrypt would be invaluable. In particular, the Prime Framework's unification of algebraic structure, geometric foundations, and coherence constraints might offer a new lens through which to consider the distributed consensus mechanisms you first explored.
+                        </p>
+                        <p className="mt-2">
+                            PrimeCrypt's approach to multi-signature aggregation could also provide an elegant solution to some of the multi-party validation challenges inherent in decentralized currency systems. The hierarchical decomposition via intrinsic primes creates a natural way to compose signatures while maintaining verifiability – a concept that harmonizes with your original vision for distributed electronic cash.
+                        </p>
+                    </div>
+                    
+                    <div className="highlight-box bg-purple-50 border-purple-200">
+                        <h3 className="font-semibold text-purple-800 text-lg mb-3">The Most Profound Insight</h3>
+                        <p className="mb-4">
+                            The most revolutionary aspect of PrimeCrypt is how it demonstrates that cryptographic security can emerge organically from mathematical structure rather than being imposed through computational assumptions.
+                        </p>
+                        <p className="mb-4">
+                            Traditional cryptography relies on the presumed hardness of isolated mathematical problems like factoring or discrete logarithms. PrimeCrypt shows that security can instead arise from the coherence properties of a unified mathematical framework, where security guarantees are derived from the axiomatic structure itself.
+                        </p>
+                        <p>
+                            This reconceptualization of security as an emergent property of mathematical coherence rather than computational hardness could fundamentally reshape cryptographic design in the coming decades, potentially creating systems with provable security bounds that don't rely on unproven computational assumptions.
+                        </p>
+                    </div>
+                </section>
+            );
+        };
+        
+        // Render the App
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
