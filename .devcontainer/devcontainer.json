@@ -4,7 +4,7 @@
     "name": "prime-framework",
     "remoteUser": "ubuntu",
     "containerUser": "ubuntu",
-    "updateRemoteUserUID": false,
+    "updateRemoteUserUID": true,
     "dockerFile": "Dockerfile",
     "postCreateCommand": "devcontainer-links",
     "shutdownAction": "stopContainer",
@@ -21,7 +21,9 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-azuretools.vscode-docker"
+                "ms-azuretools.vscode-docker",
+                "ms-vscode-remote.vscode-remote-extensionpack",
+                "ms-vscode-remote.remote-wsl"
             ]
         }
     },
